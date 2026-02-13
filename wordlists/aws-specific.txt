@@ -1,0 +1,58 @@
+# AWS S3 specific bucket patterns
+# Common patterns found in AWS environments
+
+# AWS service integrations
+cloudtrail
+cloudwatch
+config
+elasticbeanstalk
+lambda
+codepipeline
+codebuild
+
+# S3 naming patterns
+s3
+aws
+amazon
+
+# Static hosting
+website-static
+static-website
+site-assets
+web-assets
+
+# Application hosting
+app-deploy
+deployment
+releases
+builds
+artifacts
+
+# Backup patterns
+s3-backup
+aws-backup
+ebs-snapshots
+rds-backups
+
+# Regional patterns
+us-east-1
+us-west-2
+eu-west-1
+ap-southeast-1
+
+# Compliance
+compliance
+audit-logs
+security-logs
+vpc-logs
+
+# Media processing
+transcoded
+thumbnails
+processed
+
+# Big data
+athena
+redshift
+emr
+glue

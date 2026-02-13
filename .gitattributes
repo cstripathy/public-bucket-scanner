@@ -1,0 +1,45 @@
+# Git attributes for consistent line endings
+* text=auto
+
+# Source code
+*.py text eol=lf
+*.sh text eol=lf
+*.sql text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Docker files
+Dockerfile text eol=lf
+docker-compose.yml text eol=lf
+
+# Scripts should be executable
+*.sh text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.db binary
+
+# Archives
+*.zip binary
+*.tar binary
+*.gz binary
+
+# Python
+*.pyc binary
+*.pyo binary
+*.pyd binary
+
+# Documentation line ending handling
+*.md text eol=lf diff=markdown
+
+# Export ignore (files not included in archive)
+.gitattributes export-ignore
+.gitignore export-ignore
+.env export-ignore

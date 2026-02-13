@@ -1,0 +1,115 @@
+# Common bucket name patterns
+# Source: Security research and common findings
+
+# Data storage patterns
+backup
+backups
+data
+storage
+archive
+files
+documents
+docs
+assets
+resources
+
+# Media files
+images
+img
+photos
+pics
+media
+videos
+uploads
+downloads
+attachments
+
+# Web content
+static
+public
+cdn
+website
+web
+www
+site
+content
+
+# Application
+app
+application
+api
+service
+code
+source
+
+# Logs and monitoring
+logs
+logging
+reports
+analytics
+metrics
+monitoring
+audit
+
+# Database
+db
+database
+dumps
+exports
+snapshots
+sql
+mysql
+postgres
+
+# Temporary storage
+temp
+tmp
+cache
+staging
+scratch
+
+# Security levels
+private
+internal
+confidential
+secure
+secret
+
+# Environments
+dev
+development
+test
+testing
+qa
+uat
+prod
+production
+live
+demo
+sandbox
+
+# Customer/User data
+customer
+customers
+user
+users
+client
+clients
+account
+accounts
+
+# Company departments
+engineering
+eng
+marketing
+sales
+hr
+finance
+accounting
+legal
+support
+
+# Time-based
+2024
+2025
+2026

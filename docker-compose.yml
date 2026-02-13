@@ -1,0 +1,139 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: bucket-scanner-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-scanner}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-scanner_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-bucket_scanner}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U scanner -d bucket_scanner"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - scanner-network
+
+  # Redis Cache & Queue
+  redis:
+    image: redis:7-alpine
+    container_name: bucket-scanner-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - scanner-network
+
+  # FastAPI Application
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bucket-scanner-api
+    environment:
+      DEBUG: ${DEBUG:-false}
+      POSTGRES_USER: ${POSTGRES_USER:-scanner}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-scanner_pass}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-bucket_scanner}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      MAX_REQUESTS_PER_SECOND: ${MAX_REQUESTS_PER_SECOND:-10}
+      MAX_CONCURRENT_WORKERS: ${MAX_CONCURRENT_WORKERS:-50}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      GCP_PROJECT_ID: ${GCP_PROJECT_ID:-}
+      GCP_CREDENTIALS_PATH: ${GCP_CREDENTIALS_PATH:-}
+      AZURE_CONNECTION_STRING: ${AZURE_CONNECTION_STRING:-}
+      AZURE_ACCOUNT_NAME: ${AZURE_ACCOUNT_NAME:-}
+      AZURE_ACCOUNT_KEY: ${AZURE_ACCOUNT_KEY:-}
+      ENABLE_NOTIFICATIONS: ${ENABLE_NOTIFICATIONS:-false}
+      WEBHOOK_URL: ${WEBHOOK_URL:-}
+      SLACK_WEBHOOK: ${SLACK_WEBHOOK:-}
+    volumes:
+      - ./src:/app/src
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - scanner-network
+    command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Scanner Worker (queue consumer) - can be scaled
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DEBUG: ${DEBUG:-false}
+      POSTGRES_USER: ${POSTGRES_USER:-scanner}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-scanner_pass}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-bucket_scanner}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      MAX_REQUESTS_PER_SECOND: ${MAX_REQUESTS_PER_SECOND:-10}
+      MAX_CONCURRENT_WORKERS: ${MAX_CONCURRENT_WORKERS:-10}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      GCP_PROJECT_ID: ${GCP_PROJECT_ID:-}
+      GCP_CREDENTIALS_PATH: ${GCP_CREDENTIALS_PATH:-}
+      AZURE_CONNECTION_STRING: ${AZURE_CONNECTION_STRING:-}
+      AZURE_ACCOUNT_NAME: ${AZURE_ACCOUNT_NAME:-}
+      AZURE_ACCOUNT_KEY: ${AZURE_ACCOUNT_KEY:-}
+      ENABLE_NOTIFICATIONS: ${ENABLE_NOTIFICATIONS:-false}
+      WEBHOOK_URL: ${WEBHOOK_URL:-}
+      SLACK_WEBHOOK: ${SLACK_WEBHOOK:-}
+    volumes:
+      - ./src:/app/src
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    networks:
+      - scanner-network
+    command: python -m src.worker_service
+    deploy:
+      replicas: ${WORKER_REPLICAS:-2}
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  scanner-network:
+    driver: bridge
