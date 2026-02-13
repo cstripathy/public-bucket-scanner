@@ -41,7 +41,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: docker/Dockerfile
     container_name: bucket-scanner-api
     environment:
       DEBUG: ${DEBUG:-false}
@@ -89,7 +89,7 @@ services:
   worker:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: docker/Dockerfile
     environment:
       DEBUG: ${DEBUG:-false}
       POSTGRES_USER: ${POSTGRES_USER:-scanner}

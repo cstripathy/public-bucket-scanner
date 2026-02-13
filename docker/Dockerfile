@@ -7,6 +7,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements
@@ -17,6 +18,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY src/ ./src/
+
+# Copy wordlists for enumeration
+COPY wordlists/ ./wordlists/
 
 # Create docs directory (optional)
 RUN mkdir -p ./docs

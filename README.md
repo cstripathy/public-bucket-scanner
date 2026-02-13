@@ -42,17 +42,17 @@ git clone <repository-url>
 cd task001
 
 # Copy environment file
-cp docker/.env.example docker/.env
+cp .env.example .env
 
-# Edit docker/.env with your configuration
-nano docker/.env
+# Edit .env with your configuration
+nano .env
 ```
 
 ### 2. Start with Docker Compose
 
 ```bash
-cd docker
-docker compose up -d
+# From project root
+docker compose up -d --build
 ```
 
 This will start:
@@ -196,7 +196,7 @@ curl http://localhost:8000/api/v1/statistics
 
 ### Environment Variables
 
-Key configurations in `docker/.env`:
+Key configurations in `.env` (at project root):
 
 ```bash
 # Rate Limiting
@@ -223,10 +223,10 @@ SLACK_WEBHOOK=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
 ### Scaling Workers
 
 ```bash
-# Edit docker/.env
+# Edit .env at project root
 WORKER_REPLICAS=5
 
-# Restart services
+# Restart services (from project root)
 docker compose up -d --scale worker=5
 ```
 
@@ -273,9 +273,10 @@ task001/
 │   ├── DEPLOYMENT.md
 │   └── DEVELOPMENT.md
 ├── docker/               # Docker configuration
-│   ├── Dockerfile
-│   ├── docker-compose.yml
-│   └── .env.example
+│   ├── Dockerfile        # Container build definition
+│   └── prometheus.yml    # Monitoring configuration
+├── docker-compose.yml    # Service orchestration (at root)
+├── .env.example          # Environment template
 └── requirements.txt
 ```
 

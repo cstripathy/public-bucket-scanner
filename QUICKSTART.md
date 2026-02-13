@@ -3,9 +3,9 @@
 ## 🚀 Quick Start (1 minute)
 
 ```bash
-cd docker
+# From project root
 cp .env.example .env
-docker compose up -d
+docker compose up -d --build
 ```
 
 Access: http://localhost:8000/docs
